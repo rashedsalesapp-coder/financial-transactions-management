@@ -3,56 +3,82 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import Link from 'next/link'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 export default function SignUp() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    setMessage('')
-    setError('')
+    setLoading(true)
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name: fullName } },
     })
-    if (error) { setError(`Error signing up: ${error.message}`) }
-    else { setMessage('Registration successful! Please check your email to confirm your account. An admin will need to approve your account before you can log in.') }
+    if (error) {
+      toast.error("Signup Failed", { description: error.message })
+    } else {
+      toast.success("Registration Successful!", { description: "Please check your email to confirm your account." })
+      setIsSubmitted(true)
+    }
+    setLoading(false)
   }
 
   return (
-    <div className="flex items-center justify-center mt-10">
-      <div className="p-8 bg-white rounded-lg shadow-md w-full max-w-md">
-        <h1 className="mb-4 text-2xl font-bold text-center">إنشاء حساب جديد</h1>
-        {message ? (
-          <p className="mt-4 text-center text-green-600 bg-green-100 p-3 rounded">{message}</p>
-        ) : (
-          <form onSubmit={handleSignUp}>
-            <div className="mb-4">
-              <label htmlFor="fullName" className="block mb-2 text-sm font-medium text-gray-700">الاسم الكامل</label>
-              <input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md"/>
+    <div className="flex items-center justify-center pt-20">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">إنشاء حساب جديد</CardTitle>
+          <CardDescription>أدخل بياناتك لإنشاء حساب جديد</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isSubmitted ? (
+            <div className="text-center p-4">
+              <h3 className="text-lg font-semibold">شكراً لتسجيلك!</h3>
+              <p className="text-muted-foreground mt-2">
+                لقد أرسلنا رابط تأكيد إلى بريدك الإلكتروني. بعد تأكيد حسابك، سيحتاج المدير إلى الموافقة عليه قبل أن تتمكن من تسجيل الدخول.
+              </p>
             </div>
-            <div className="mb-4">
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">البريد الإلكتروني</label>
-              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md"/>
-            </div>
-            <div className="mb-6">
-              <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-700">كلمة المرور</label>
-              <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-3 py-2 border border-gray-300 rounded-md"/>
-            </div>
-            <button type="submit" className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700">تسجيل</button>
-            {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
-          </form>
-        )}
-        <p className="text-center mt-4 text-sm">
-          لديك حساب بالفعل؟{' '}
-          <Link href="/login" className="text-indigo-600 hover:underline">سجل الدخول</Link>
-        </p>
-      </div>
+          ) : (
+            <form onSubmit={handleSignUp}>
+              <div className="grid w-full items-center gap-4">
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="fullName">الاسم الكامل</Label>
+                  <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="email">البريد الإلكتروني</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="password">كلمة المرور</Label>
+                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </div>
+              </div>
+              <Button type="submit" className="w-full mt-6" disabled={loading}>
+                {loading ? "جاري التسجيل..." : "إنشاء حساب"}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <p className="text-sm">
+            لديك حساب بالفعل؟{' '}
+            <Link href="/login" className="text-primary hover:underline">
+              سجل الدخول
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   )
 }
