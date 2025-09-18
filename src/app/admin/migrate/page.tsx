@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import * as XLSX from 'xlsx'
 import { supabase } from '@/lib/supabaseClient'
 import AdminRouteGuard from '@/components/AdminRouteGuard'
@@ -26,8 +26,14 @@ function MigrationTool() {
   const [transactionsFile, setTransactionsFile] = useState<File | null>(null);
   const [paymentsFile, setPaymentsFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
-  const [customerLegacyIdMap, setCustomerLegacyIdMap] = useState<Map<number, string> | null>(null);
-  const [transactionLegacyIdMap, setTransactionLegacyIdMap] = useState<Map<number, string> | null>(null);
+
+  const [hasCustomerMap, setHasCustomerMap] = useState(false);
+  const [hasTransactionMap, setHasTransactionMap] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('customer_legacy_map')) setHasCustomerMap(true);
+    if (localStorage.getItem('transaction_legacy_map')) setHasTransactionMap(true);
+  }, []);
 
   const parseFile = <T,>(file: File): Promise<T[]> => {
     return new Promise((resolve, reject) => {
@@ -52,16 +58,21 @@ function MigrationTool() {
       const customersToInsert = json.map(row => ({ legacy_id: row['كود'], full_name: row['أسماء العملاء'], phone_1: row['Mobile']?.toString() || null, phone_2: row['Mobile2']?.toString() || null }));
       const { data, error } = await supabase.from('customers').insert(customersToInsert.map(c => ({ full_name: c.full_name, phone_1: c.phone_1, phone_2: c.phone_2 }))).select();
       if (error) throw error;
-      const newMap = new Map<number, string>();
-      data.forEach((newCust, index) => { newMap.set(customersToInsert[index].legacy_id, newCust.customer_id); });
-      setCustomerLegacyIdMap(newMap);
+
+      const newMapArray = data.map((newCust, index) => [customersToInsert[index].legacy_id, newCust.customer_id]);
+      localStorage.setItem('customer_legacy_map', JSON.stringify(newMapArray));
+      setHasCustomerMap(true);
       toast.success(`Successfully imported ${data.length} customers.`);
     } catch (err: any) { toast.error("Customer import failed", { description: err.message }); }
     setLoading(null);
   };
 
   const handleImportTransactions = async () => {
-    if (!transactionsFile || !customerLegacyIdMap) { toast.error('Please import customers and select a transactions file.'); return; }
+    if (!transactionsFile) { toast.error('Please select a transactions file.'); return; }
+    const mapData = localStorage.getItem('customer_legacy_map');
+    if (!mapData) { toast.error('Customer ID map not found. Please import customers first.'); return; }
+    const customerLegacyIdMap = new Map<number, string>(JSON.parse(mapData));
+
     setLoading('transactions');
     try {
       const json = await parseFile<TransactionExcel>(transactionsFile);
@@ -72,16 +83,21 @@ function MigrationTool() {
       });
       const { data, error } = await supabase.from('transactions').insert(transactionsToInsert.map(t => ({ customer_id: t.customer_id, goods_price: t.goods_price, monthly_installment: t.monthly_installment, installments_count: t.installments_count, first_payment_date: t.first_payment_date }))).select();
       if (error) throw error;
-      const newMap = new Map<number, string>();
-      data.forEach((newTrans, index) => { newMap.set(transactionsToInsert[index].legacy_id, newTrans.transaction_id); });
-      setTransactionLegacyIdMap(newMap);
+
+      const newMapArray = data.map((newTrans, index) => [transactionsToInsert[index].legacy_id, newTrans.transaction_id]);
+      localStorage.setItem('transaction_legacy_map', JSON.stringify(newMapArray));
+      setHasTransactionMap(true);
       toast.success(`Successfully imported ${data.length} transactions.`);
     } catch (err: any) { toast.error("Transaction import failed", { description: err.message }); }
     setLoading(null);
   };
 
   const handleImportPayments = async () => {
-    if (!paymentsFile || !transactionLegacyIdMap) { toast.error('Please import transactions and select a payments file.'); return; }
+    if (!paymentsFile) { toast.error('Please select a payments file.'); return; }
+    const mapData = localStorage.getItem('transaction_legacy_map');
+    if (!mapData) { toast.error('Transaction ID map not found. Please import transactions first.'); return; }
+    const transactionLegacyIdMap = new Map<number, string>(JSON.parse(mapData));
+
     setLoading('payments');
     try {
       const json = await parseFile<PaymentExcel>(paymentsFile);
@@ -97,6 +113,14 @@ function MigrationTool() {
     setLoading(null);
   };
 
+  const clearMaps = () => {
+    localStorage.removeItem('customer_legacy_map');
+    localStorage.removeItem('transaction_legacy_map');
+    setHasCustomerMap(false);
+    setHasTransactionMap(false);
+    toast.info("Cleared all legacy ID maps from local storage.");
+  }
+
   return (
     <div className="space-y-6">
         <h1 className="text-3xl font-bold">أداة ترحيل البيانات</h1>
@@ -111,14 +135,20 @@ function MigrationTool() {
             <CardHeader><CardTitle>الخطوة 2: استيراد المعاملات</CardTitle><CardDescription>قم بتحميل ملف Transactions.xlsx</CardDescription></CardHeader>
             <CardContent className="flex items-center space-x-4">
                 <Input type="file" onChange={e => setTransactionsFile(e.target.files?.[0] || null)} accept=".xlsx" className="max-w-xs"/>
-                <Button onClick={handleImportTransactions} disabled={!customerLegacyIdMap || loading !== null}>{loading === 'transactions' ? 'جاري الاستيراد...' : 'استيراد المعاملات'}</Button>
+                <Button onClick={handleImportTransactions} disabled={!hasCustomerMap || loading !== null}>{loading === 'transactions' ? 'جاري الاستيراد...' : 'استيراد المعاملات'}</Button>
             </CardContent>
         </Card>
         <Card>
             <CardHeader><CardTitle>الخطوة 3: استيراد الدفعات</CardTitle><CardDescription>قم بتحميل ملف Payments.xlsx</CardDescription></CardHeader>
             <CardContent className="flex items-center space-x-4">
                 <Input type="file" onChange={e => setPaymentsFile(e.target.files?.[0] || null)} accept=".xlsx" className="max-w-xs"/>
-                <Button onClick={handleImportPayments} disabled={!transactionLegacyIdMap || loading !== null}>{loading === 'payments' ? 'جاري الاستيراد...' : 'استيراد الدفعات'}</Button>
+                <Button onClick={handleImportPayments} disabled={!hasTransactionMap || loading !== null}>{loading === 'payments' ? 'جاري الاستيراد...' : 'استيراد الدفعات'}</Button>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader><CardTitle>إدارة الترحيل</CardTitle><CardDescription>مسح خرائط الربط القديمة لبدء عملية ترحيل جديدة.</CardDescription></CardHeader>
+            <CardContent>
+                <Button onClick={clearMaps} variant="destructive">مسح بيانات الترحيل</Button>
             </CardContent>
         </Card>
     </div>
