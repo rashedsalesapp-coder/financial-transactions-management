@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss"
 
+
 const config = {
   darkMode: ["class"],
   content: [
@@ -7,6 +8,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+  ],
   theme: {
     container: {
       center: true,
@@ -43,58 +45,7 @@ const config = {
           dark: "#d97706", // orange-600
           foreground: "#fff",
         },
-        accent: {
-          DEFAULT: "#10b981", // emerald-500
-          light: "#34d399",
-          dark: "#059669",
-          foreground: "#fff",
-        },
-        muted: {
-          DEFAULT: "#f3f4f6", // gray-100
-          dark: "#6b7280", // gray-500
-          foreground: "#374151", // gray-700
-        },
-        destructive: {
-          DEFAULT: "#ef4444", // red-500
-          dark: "#b91c1c", // red-700
-          foreground: "#fff",
-        },
-        card: {
-          DEFAULT: "#fff",
-          dark: "#f3f4f6",
-          foreground: "#1e293b",
-        },
-        popover: {
-          DEFAULT: "#fff",
-          dark: "#f3f4f6",
-          foreground: "#1e293b",
-        },
-      },
-      borderRadius: {
-        lg: "1rem",
-        md: "0.75rem",
-        sm: "0.5rem",
-      },
-      boxShadow: {
-        card: "0 2px 16px 0 rgba(0,0,0,0.08)",
-        navbar: "0 2px 8px 0 rgba(0,0,0,0.06)",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
-    },
-        },
+        // HSL color variables for dynamic theming
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -120,6 +71,10 @@ const config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        card: "0 2px 16px 0 rgba(0,0,0,0.08)",
+        navbar: "0 2px 8px 0 rgba(0,0,0,0.06)",
       },
       keyframes: {
         "accordion-down": {
