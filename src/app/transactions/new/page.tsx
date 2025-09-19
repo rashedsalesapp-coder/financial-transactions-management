@@ -98,20 +98,19 @@ function NewTransactionForm() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5"><Label htmlFor="goodsPrice">سعر السلعة</Label><Input id="goodsPrice" type="number" value={goodsPrice} onChange={e => setGoodsPrice(e.target.value)} required /></div>
-            <div className="space-y-1.5"><Label htmlFor="installmentsCount">عدد الدفعات</Label><Input id="installmentsCount" type="number" value={installmentsCount} onChange={e => setInstallmentsCount(e.target.value)} required /></div>
-            <div className="space-y-1.5"><Label htmlFor="monthlyInstallment">القسط الشهري</Label><Input id="monthlyInstallment" type="number" value={monthlyInstallment} onChange={e => setMonthlyInstallment(e.target.value)} required /></div>
-            <div className="space-y-1.5"><Label htmlFor="firstPaymentDate">تاريخ أول دفعة</Label><Input id="firstPaymentDate" type="date" value={firstPaymentDate} onChange={e => setFirstPaymentDate(e.target.value)} required /></div>
-          </div>
-          <Card className="bg-muted"><CardContent className="p-4 space-y-2">
-              <h3 className="font-semibold text-lg">الحقول المحسوبة</h3>
-              <p className="text-sm"><strong>إجمالي الدين:</strong> {totalDebt.toFixed(2)}</p>
-              <p className="text-sm"><strong>الربح:</strong> {profit.toFixed(2)}</p>
-              <p className="text-sm"><strong>تاريخ نهاية السداد:</strong> {endPaymentDate || 'N/A'}</p>
-          </CardContent></Card>
-          <Button type="submit" className="w-full" disabled={loading}>{loading ? 'جاري الإنشاء...' : 'إنشاء معاملة'}</Button>
-        </form>
-        </CardContent>
-      </section>
+          <div className="space-y-1.5"><Label htmlFor="installmentsCount">عدد الدفعات</Label><Input id="installmentsCount" type="number" value={installmentsCount} onChange={e => setInstallmentsCount(e.target.value)} required /></div>
+          <div className="space-y-1.5"><Label htmlFor="monthlyInstallment">القسط الشهري</Label><Input id="monthlyInstallment" type="number" value={monthlyInstallment} onChange={e => setMonthlyInstallment(e.target.value)} required /></div>
+          <div className="space-y-1.5"><Label htmlFor="firstPaymentDate">تاريخ أول دفعة</Label><Input id="firstPaymentDate" type="date" value={firstPaymentDate} onChange={e => setFirstPaymentDate(e.target.value)} required /></div>
+        </div>
+        <Card className="bg-muted"><CardContent className="p-4 space-y-2">
+          <h3 className="font-semibold text-lg">الحقول المحسوبة</h3>
+          <p className="text-sm"><strong>إجمالي الدين:</strong> {totalDebt.toFixed(2)}</p>
+          <p className="text-sm"><strong>الربح:</strong> {profit.toFixed(2)}</p>
+          <p className="text-sm"><strong>تاريخ نهاية السداد:</strong> {endPaymentDate || 'N/A'}</p>
+        </CardContent></Card>
+        <Button type="submit" className="w-full" disabled={loading}>{loading ? 'جاري الإنشاء...' : 'إنشاء معاملة'}</Button>
+      </form>
+    </section>
   )
 }
 
