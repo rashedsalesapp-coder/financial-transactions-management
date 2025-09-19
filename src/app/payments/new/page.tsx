@@ -53,23 +53,24 @@ function NewPaymentForm() {
   };
 
   return (
-      <section className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card mt-8">
-        <h1 className="text-3xl font-extrabold text-primary mb-6">إضافة دفعة جديدة</h1>
-        <form onSubmit={handleCreatePayment} className="space-y-6">
+    <section className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card mt-8">
+      <h1 className="text-3xl font-extrabold text-primary mb-6">إضافة دفعة جديدة</h1>
+      <form onSubmit={handleCreatePayment} className="space-y-6">
         <div className="space-y-2">
           <Label>العميل</Label>
           <CustomerCombobox selectedCustomer={selectedCustomer} onSelectCustomer={setSelectedCustomer} />
         </div>
 
         {selectedCustomer && (
-          <Card><CardHeader><CardTitle>معاملات العميل النشطة</CardTitle></CardHeader>
+          <Card>
+            <CardHeader><CardTitle>معاملات العميل النشطة</CardTitle></CardHeader>
             <CardContent>
               {customerTransactions.length > 0 ? (
                 <div className="space-y-2">{customerTransactions.map(t => (
-                    <div key={t.transaction_id} onClick={() => handleSelectTransaction(t)} className={`p-3 border rounded-md cursor-pointer ${selectedTransaction?.transaction_id === t.transaction_id ? 'bg-primary/10 border-primary' : 'hover:bg-muted'}`}>
-                      <p>المعاملة رقم: {t.transaction_id.substring(0, 8)}</p>
-                      <p className="text-sm text-muted-foreground">الرصيد المتبقي: {t.remaining_balance.toFixed(2)}</p>
-                    </div>
+                  <div key={t.transaction_id} onClick={() => handleSelectTransaction(t)} className={`p-3 border rounded-md cursor-pointer ${selectedTransaction?.transaction_id === t.transaction_id ? 'bg-primary/10 border-primary' : 'hover:bg-muted'}`}>
+                    <p>المعاملة رقم: {t.transaction_id.substring(0, 8)}</p>
+                    <p className="text-sm text-muted-foreground">الرصيد المتبقي: {t.remaining_balance.toFixed(2)}</p>
+                  </div>
                 ))}</div>
               ) : <p>لا يوجد معاملات نشطة لهذا العميل.</p>}
             </CardContent>
@@ -77,20 +78,24 @@ function NewPaymentForm() {
         )}
 
         {selectedTransaction && (
-            <Card className="bg-muted"><CardContent className="p-4 space-y-2">
-              <h3 className="font-semibold text-lg">تفاصيل الدفعة للمعاملة: {selectedTransaction.transaction_id.substring(0,8)}</h3>
-              <p className="text-sm"><strong>إجمالي الدين:</strong> {selectedTransaction.total_debt.toFixed(2)}</p>
-              <p className="text-sm"><strong>إجمالي المدفوع:</strong> {selectedTransaction.total_paid.toFixed(2)}</p>
-              <p className="text-sm font-bold"><strong>الرصيد المتبقي:</strong> {selectedTransaction.remaining_balance.toFixed(2)}</p>
-            </CardContent></Card>
+          <>
+            <Card className="bg-muted">
+              <CardContent className="p-4 space-y-2">
+                <h3 className="font-semibold text-lg">تفاصيل الدفعة للمعاملة: {selectedTransaction.transaction_id.substring(0,8)}</h3>
+                <p className="text-sm"><strong>إجمالي الدين:</strong> {selectedTransaction.total_debt.toFixed(2)}</p>
+                <p className="text-sm"><strong>إجمالي المدفوع:</strong> {selectedTransaction.total_paid.toFixed(2)}</p>
+                <p className="text-sm font-bold"><strong>الرصيد المتبقي:</strong> {selectedTransaction.remaining_balance.toFixed(2)}</p>
+              </CardContent>
+            </Card>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5"><Label htmlFor="paymentAmount">قيمة الدفعة</Label><Input id="paymentAmount" type="number" value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} required /></div>
               <div className="space-y-1.5"><Label htmlFor="paymentDate">تاريخ الدفعة</Label><Input id="paymentDate" type="date" value={paymentDate} onChange={e => setPaymentDate(e.target.value)} required /></div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>{loading ? 'جاري الحفظ...' : 'حفظ الدفعة'}</Button>
+          </>
         )}
-      </CardContent>
-      </section>
+      </form>
+    </section>
   )
 }
 

@@ -86,18 +86,18 @@ function NewTransactionForm() {
   };
 
   return (
-      <section className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card mt-8">
-        <h1 className="text-3xl font-extrabold text-primary mb-6">إضافة معاملة جديدة</h1>
-        <form onSubmit={handleCreateTransaction} className="space-y-6">
-          <div className="space-y-2">
-            <Label>العميل</Label>
-            <div className="flex items-center space-x-2">
-              <CustomerCombobox selectedCustomer={selectedCustomer} onSelectCustomer={setSelectedCustomer} />
-              <NewCustomerDialog onCustomerCreated={(customer) => setSelectedCustomer(customer)} />
-            </div>
+    <section className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card mt-8">
+      <h1 className="text-3xl font-extrabold text-primary mb-6">إضافة معاملة جديدة</h1>
+      <form onSubmit={handleCreateTransaction} className="space-y-6">
+        <div className="space-y-2">
+          <Label>العميل</Label>
+          <div className="flex items-center space-x-2">
+            <CustomerCombobox selectedCustomer={selectedCustomer} onSelectCustomer={setSelectedCustomer} />
+            <NewCustomerDialog onCustomerCreated={(customer) => setSelectedCustomer(customer)} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5"><Label htmlFor="goodsPrice">سعر السلعة</Label><Input id="goodsPrice" type="number" value={goodsPrice} onChange={e => setGoodsPrice(e.target.value)} required /></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5"><Label htmlFor="goodsPrice">سعر السلعة</Label><Input id="goodsPrice" type="number" value={goodsPrice} onChange={e => setGoodsPrice(e.target.value)} required /></div>
             <div className="space-y-1.5"><Label htmlFor="installmentsCount">عدد الدفعات</Label><Input id="installmentsCount" type="number" value={installmentsCount} onChange={e => setInstallmentsCount(e.target.value)} required /></div>
             <div className="space-y-1.5"><Label htmlFor="monthlyInstallment">القسط الشهري</Label><Input id="monthlyInstallment" type="number" value={monthlyInstallment} onChange={e => setMonthlyInstallment(e.target.value)} required /></div>
             <div className="space-y-1.5"><Label htmlFor="firstPaymentDate">تاريخ أول دفعة</Label><Input id="firstPaymentDate" type="date" value={firstPaymentDate} onChange={e => setFirstPaymentDate(e.target.value)} required /></div>
