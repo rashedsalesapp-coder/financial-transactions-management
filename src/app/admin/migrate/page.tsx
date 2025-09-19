@@ -29,6 +29,10 @@ function MigrationTool() {
 
   const parseFile = <T,>(file: File): Promise<T[]> => {
     return new Promise((resolve, reject) => {
+      if (!file || !file.name.endsWith('.xlsx')) {
+        reject(new Error('يرجى اختيار ملف Excel صالح (.xlsx)'));
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
@@ -38,80 +42,84 @@ function MigrationTool() {
           resolve(json);
         } catch (err) { reject(err); }
       };
+      reader.onerror = () => reject(new Error('فشل في قراءة الملف.'));
       reader.readAsArrayBuffer(file);
     });
   };
 
   const handleImportCustomers = async () => {
-    if (!customersFile) { toast.error('Please select a customers file.'); return; }
+    if (!customersFile) { toast.error('يرجى اختيار ملف العملاء.'); return; }
     setLoading('customers');
     try {
       const json = await parseFile<CustomerExcel>(customersFile);
+      if (!Array.isArray(json) || json.length === 0) throw new Error('ملف العملاء فارغ أو غير صالح.');
       const customersToInsert = json.map(row => ({ legacy_id: row['كود'], full_name: row['أسماء العملاء'], phone_1: row['Mobile']?.toString() || null, phone_2: row['Mobile2']?.toString() || null }));
       const { data, error } = await supabase.from('customers').insert(customersToInsert.map(c => ({ full_name: c.full_name, phone_1: c.phone_1, phone_2: c.phone_2 }))).select();
       if (error) throw error;
       const newMapArray = data.map((newCust, index) => [customersToInsert[index].legacy_id, newCust.customer_id]);
       localStorage.setItem('customer_legacy_map', JSON.stringify(newMapArray));
-      toast.success(`Successfully imported ${data.length} customers.`);
-    } catch (err: any) { toast.error("Customer import failed", { description: err.message }); }
+      toast.success(`تم استيراد ${data.length} عميل بنجاح.`);
+    } catch (err: any) { toast.error("فشل استيراد العملاء", { description: err.message }); }
     setLoading(null);
   };
 
   const handleImportTransactions = async () => {
-    if (!transactionsFile) { toast.error('Please select a transactions file.'); return; }
+    if (!transactionsFile) { toast.error('يرجى اختيار ملف المعاملات.'); return; }
     const mapData = localStorage.getItem('customer_legacy_map');
-    if (!mapData) { toast.error('Customer ID map not found. Please import customers first.'); return; }
+    if (!mapData) { toast.error('لم يتم العثور على خريطة العملاء. يرجى استيراد العملاء أولاً.'); return; }
     const customerLegacyIdMap = new Map<number, string>(JSON.parse(mapData));
     setLoading('transactions');
     try {
       const json = await parseFile<TransactionExcel>(transactionsFile);
+      if (!Array.isArray(json) || json.length === 0) throw new Error('ملف المعاملات فارغ أو غير صالح.');
       const validRows = json.filter(row => {
         const hasRequiredFields = row['عدد الدفعات'] && row['سعر السلعة'] && row['القسط الشهرى'];
         return hasRequiredFields && !isNaN(Number(row['عدد الدفعات'])) && !isNaN(Number(row['سعر السلعة'])) && !isNaN(Number(row['القسط الشهرى']));
       });
       const skippedRows = json.length - validRows.length;
       if (skippedRows > 0) {
-        toast.warning(`${skippedRows} transaction rows were skipped`, { description: "Rows were skipped due to missing required fields (goods_price, monthly_installment, installments_count)." });
+        toast.warning(`${skippedRows} صف من المعاملات تم تخطيه`, { description: "تم تخطي الصفوف بسبب نقص البيانات المطلوبة." });
       }
-      if (validRows.length === 0) { toast.error("No valid transaction rows found to import."); setLoading(null); return; }
+      if (validRows.length === 0) { toast.error("لا يوجد صفوف معاملات صالحة للاستيراد."); setLoading(null); return; }
       const transactionsToInsert = validRows.map(row => {
         const new_customer_id = customerLegacyIdMap.get(row['رقم العميل']);
-        if (!new_customer_id) throw new Error(`Customer with legacy ID ${row['رقم العميل']} not found.`);
+        if (!new_customer_id) throw new Error(`لم يتم العثور على عميل بالمعرف القديم ${row['رقم العميل']}`);
         return { legacy_id: row['رقم البيع'], customer_id: new_customer_id, goods_price: row['سعر السلعة'], monthly_installment: row['القسط الشهرى'], installments_count: row['عدد الدفعات'], first_payment_date: ExcelDateToJSDate(row['تاريخ بدء القرض']) };
       });
       const { data, error } = await supabase.from('transactions').insert(transactionsToInsert.map(t => ({ customer_id: t.customer_id, goods_price: t.goods_price, monthly_installment: t.monthly_installment, installments_count: t.installments_count, first_payment_date: t.first_payment_date }))).select();
       if (error) throw error;
       const newMapArray = data.map((newTrans, index) => [transactionsToInsert[index].legacy_id, newTrans.transaction_id]);
       localStorage.setItem('transaction_legacy_map', JSON.stringify(newMapArray));
-      toast.success(`Successfully imported ${data.length} transactions.`);
-    } catch (err: any) { toast.error("Transaction import failed", { description: err.message }); }
+      toast.success(`تم استيراد ${data.length} معاملة بنجاح.`);
+    } catch (err: any) { toast.error("فشل استيراد المعاملات", { description: err.message }); }
     setLoading(null);
   };
 
   const handleImportPayments = async () => {
-    if (!paymentsFile) { toast.error('Please select a payments file.'); return; }
+    if (!paymentsFile) { toast.error('يرجى اختيار ملف الدفعات.'); return; }
     const mapData = localStorage.getItem('transaction_legacy_map');
-    if (!mapData) { toast.error('Transaction ID map not found. Please import transactions first.'); return; }
+    if (!mapData) { toast.error('لم يتم العثور على خريطة المعاملات. يرجى استيراد المعاملات أولاً.'); return; }
     const transactionLegacyIdMap = new Map<number, string>(JSON.parse(mapData));
     setLoading('payments');
     try {
       const json = await parseFile<PaymentExcel>(paymentsFile);
+      if (!Array.isArray(json) || json.length === 0) throw new Error('ملف الدفعات فارغ أو غير صالح.');
       const paymentsToInsert = json.map(row => {
         const new_transaction_id = transactionLegacyIdMap.get(row['رقم البيع']);
-        if (!new_transaction_id) throw new Error(`Transaction with legacy ID ${row['رقم البيع']} not found.`);
+        if (!new_transaction_id) throw new Error(`لم يتم العثور على معاملة بالمعرف القديم ${row['رقم البيع']}`);
         return { transaction_id: new_transaction_id, payment_amount: row['قيمة الدفعة'] || row['التحصيل'] || 0, payment_date: ExcelDateToJSDate(row['تاريخ الدفعة']) };
       });
       const { error } = await supabase.from('payments').insert(paymentsToInsert);
       if (error) throw error;
-      toast.success(`Successfully imported ${json.length} payments. Migration complete!`);
-    } catch (err: any) { toast.error("Payment import failed", { description: err.message }); }
+      toast.success(`تم استيراد ${json.length} دفعة بنجاح. اكتملت عملية الترحيل!`);
+    } catch (err: any) { toast.error("فشل استيراد الدفعات", { description: err.message }); }
     setLoading(null);
   };
 
   const clearMaps = () => {
     localStorage.removeItem('customer_legacy_map');
     localStorage.removeItem('transaction_legacy_map');
-    toast.info("Cleared all legacy ID maps from local storage.");
+    toast.info("تم مسح جميع بيانات الربط القديمة من التخزين المحلي.");
   }
 
   return (

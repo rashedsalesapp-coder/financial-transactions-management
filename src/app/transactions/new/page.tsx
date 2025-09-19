@@ -86,9 +86,8 @@ function NewTransactionForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader><CardTitle>إضافة معاملة جديدة</CardTitle><CardDescription>أكمل النموذج لإنشاء معاملة جديدة.</CardDescription></CardHeader>
-      <CardContent>
+      <section className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card mt-8">
+        <h1 className="text-3xl font-extrabold text-primary mb-6">إضافة معاملة جديدة</h1>
         <form onSubmit={handleCreateTransaction} className="space-y-6">
           <div className="space-y-2">
             <Label>العميل</Label>
@@ -111,8 +110,8 @@ function NewTransactionForm() {
           </CardContent></Card>
           <Button type="submit" className="w-full" disabled={loading}>{loading ? 'جاري الإنشاء...' : 'إنشاء معاملة'}</Button>
         </form>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </section>
   )
 }
 

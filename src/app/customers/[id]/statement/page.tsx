@@ -47,13 +47,22 @@ function CustomerStatement() {
   if (!customer) return <div className="text-center p-10">Customer not found.</div>;
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader><CardTitle className="text-3xl">{customer.full_name}</CardTitle><CardDescription>الرقم المدني: {customer.civil_id || 'N/A'} | الهاتف: {customer.phone_1 || 'N/A'}</CardDescription></CardHeader>
+    <div className="space-y-8">
+      <Card className="shadow-card border-0 bg-gradient-to-br from-primary/10 to-white">
+        <CardHeader>
+          <CardTitle className="text-3xl text-primary font-extrabold">{customer.full_name}</CardTitle>
+          <CardDescription className="text-lg text-muted-foreground mt-2">الرقم المدني: {customer.civil_id || 'N/A'} | الهاتف: {customer.phone_1 || 'N/A'}</CardDescription>
+        </CardHeader>
       </Card>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card><CardHeader><CardTitle>إجمالي الديون</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{summary.totalDebt.toFixed(2)}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>إجمالي المدفوع</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold text-green-600">{summary.totalPaid.toFixed(2)}</p></CardContent></Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <Card className="shadow-card border-0 bg-white">
+          <CardHeader><CardTitle className="text-lg text-primary">إجمالي الديون</CardTitle></CardHeader>
+          <CardContent><p className="text-2xl font-extrabold">{summary.totalDebt.toFixed(2)}</p></CardContent>
+        </Card>
+        <Card className="shadow-card border-0 bg-white">
+          <CardHeader><CardTitle className="text-lg text-green-700">إجمالي المدفوع</CardTitle></CardHeader>
+          <CardContent><p className="text-2xl font-extrabold text-green-600">{summary.totalPaid.toFixed(2)}</p></CardContent>
+        </Card>
         <Card><CardHeader><CardTitle>الرصيد الإجمالي</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold text-red-600">{summary.totalBalance.toFixed(2)}</p></CardContent></Card>
       </div>
       <Card>

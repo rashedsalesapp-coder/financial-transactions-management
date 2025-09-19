@@ -64,7 +64,7 @@ export default function SignUp() {
                   <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
               </div>
-              <Button type="submit" className="w-full mt-6" disabled={loading}>
+              <Button type="submit" className="w-full mt-6" disabled={loading} aria-busy={loading}>
                 {loading ? "جاري التسجيل..." : "إنشاء حساب"}
               </Button>
             </form>

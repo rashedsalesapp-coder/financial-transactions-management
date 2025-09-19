@@ -53,9 +53,9 @@ function NewPaymentForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader><CardTitle>إضافة دفعة جديدة</CardTitle><CardDescription>ابحث عن عميل ثم اختر معاملته لإضافة دفعة.</CardDescription></CardHeader>
-      <CardContent className="space-y-6">
+      <section className="max-w-2xl mx-auto p-8 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card mt-8">
+        <h1 className="text-3xl font-extrabold text-primary mb-6">إضافة دفعة جديدة</h1>
+        <form onSubmit={handleCreatePayment} className="space-y-6">
         <div className="space-y-2">
           <Label>العميل</Label>
           <CustomerCombobox selectedCustomer={selectedCustomer} onSelectCustomer={setSelectedCustomer} />
@@ -77,7 +77,6 @@ function NewPaymentForm() {
         )}
 
         {selectedTransaction && (
-          <form onSubmit={handleCreatePayment} className="space-y-6 border-t pt-6">
             <Card className="bg-muted"><CardContent className="p-4 space-y-2">
               <h3 className="font-semibold text-lg">تفاصيل الدفعة للمعاملة: {selectedTransaction.transaction_id.substring(0,8)}</h3>
               <p className="text-sm"><strong>إجمالي الدين:</strong> {selectedTransaction.total_debt.toFixed(2)}</p>
@@ -89,10 +88,9 @@ function NewPaymentForm() {
               <div className="space-y-1.5"><Label htmlFor="paymentDate">تاريخ الدفعة</Label><Input id="paymentDate" type="date" value={paymentDate} onChange={e => setPaymentDate(e.target.value)} required /></div>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>{loading ? 'جاري الحفظ...' : 'حفظ الدفعة'}</Button>
-          </form>
         )}
       </CardContent>
-    </Card>
+      </section>
   )
 }
 

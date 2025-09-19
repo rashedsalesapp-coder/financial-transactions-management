@@ -7,23 +7,20 @@ export default function Home() {
   const { user, profile, loading } = useAuth()
 
   if (loading) {
-    return <div className="text-center p-10">Loading...</div>
+    return <div className="text-center p-12 text-lg font-semibold text-primary animate-pulse">جاري التحميل...</div>
   }
 
   return (
-    <div className="text-center mt-10">
-      <h1 className="text-4xl font-bold mb-4">نظام إدارة المعاملات المالية</h1>
-      <p className="text-lg text-gray-600">
-        مرحباً بك في نظام إدارة الديون والأقساط والقضايا القانونية للعملاء.
-      </p>
-
-      {!user && (
-        <div className="mt-8">
-          <Link href="/login" className="bg-indigo-600 text-white px-6 py-2 rounded-md text-lg font-semibold hover:bg-indigo-700">
+    <section className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
+      <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl shadow-card p-10 w-full max-w-2xl text-center">
+        <h1 className="text-5xl font-extrabold text-primary mb-4 drop-shadow-sm">نظام إدارة المعاملات المالية</h1>
+        <p className="text-xl text-muted-foreground mb-6">مرحباً بك في نظام إدارة الديون والأقساط والقضايا القانونية للعملاء.</p>
+        {!user && (
+          <Link href="/login" className="inline-block bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg text-lg font-bold shadow transition-all duration-150">
             ابدأ بتسجيل الدخول
           </Link>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </section>
   )
 }

@@ -19,10 +19,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${inter.className} bg-gray-50`}>
+      <body className={"font-sans bg-gradient-to-tr from-primary/5 to-accent/10 min-h-screen text-foreground"}>
         <AuthProvider>
           <Navbar />
-          <main className="container mx-auto p-4">
+          <main className="container mx-auto p-4 md:p-8 max-w-5xl rounded-xl shadow-card bg-white mt-6 mb-8">
             {children}
           </main>
           <Toaster />

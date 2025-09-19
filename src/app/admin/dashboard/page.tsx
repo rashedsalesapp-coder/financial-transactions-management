@@ -38,15 +38,16 @@ function Dashboard() {
         fetchData();
     }, []);
 
-    if (loading) return <div className="p-4">Loading dashboard...</div>;
+    if (loading) return <div className="p-8 text-center text-lg font-semibold text-primary animate-pulse">جاري تحميل لوحة التحكم...</div>;
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-3xl font-bold">لوحة التحكم والتقارير</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card>
-                    <CardHeader><CardTitle>إجمالي الديون القائمة</CardTitle></CardHeader>
-                    <CardContent><p className="text-3xl font-bold text-red-600">{overallStats?.total_outstanding_debt?.toFixed(2) || '0.00'}</p></CardContent>
+        <div className="space-y-8">
+            <h1 className="text-4xl font-extrabold text-primary mb-2">لوحة التحكم والتقارير</h1>
+            <p className="text-lg text-muted-foreground mb-6">نظرة عامة على الأداء المالي والتقارير الرئيسية</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <Card className="shadow-card border-0 bg-gradient-to-br from-primary/10 to-white">
+                    <CardHeader><CardTitle className="text-lg text-primary">إجمالي الديون القائمة</CardTitle></CardHeader>
+                    <CardContent><p className="text-3xl font-extrabold text-red-600">{overallStats?.total_outstanding_debt?.toFixed(2) || '0.00'}</p></CardContent>
                 </Card>
                 {/* Other KPI cards can be added here */}
             </div>
